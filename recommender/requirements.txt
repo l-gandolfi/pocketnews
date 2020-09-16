@@ -1,0 +1,8 @@
+psycopg2
+numpy
+pandas
+scikit-learn
+schedule
+apscheduler
+flask
+flask-cors

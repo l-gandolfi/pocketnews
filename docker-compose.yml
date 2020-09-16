@@ -1,0 +1,65 @@
+version: '3'
+
+volumes:
+    pgdata: {}
+
+services:
+    db:
+        image: postgres
+        volumes: 
+            - pgdata:/var/lib/postgresql/data
+        ports:
+            - 5432:5432
+        environment:                      
+            - POSTGRES_HOST=db
+            - POSTGRES_DB=news_db
+            - POSTGRES_USER=pgadmin
+            - POSTGRES_PASSWORD=pgadmin
+
+    db-admin:
+        image: michalhosna/adminer
+        depends_on:
+            - db
+            - api
+        ports:
+            - 8080:8080
+        environment:
+            - ADMINER_DB=news_db
+            - ADMINER_DRIVER=pgsql
+            - ADMINER_PASSWORD=pgadmin
+            - ADMINER_SERVER=db
+            - ADMINER_USERNAME=pgadmin
+            - ADMINER_AUTOLOGIN=1
+
+    api:
+        restart: always
+        build: ./api
+        volumes: ['./api:/app']
+        depends_on:
+            - db
+        ports:
+            - 8000:5000
+
+    web:
+        restart: always
+        build: ./web
+        volumes: ['./web/src:/app/src']
+        depends_on:
+            - api
+            - recommender
+        ports:
+            - 8081:8080
+        environment: 
+            - CHOKIDAR_USEPOLLING=true
+        env_file:
+            - .env.dev
+
+    recommender:
+        restart: always
+        build: ./recommender
+        volumes: ['./recommender:/app/recommender']
+        depends_on:
+            - db
+            - api
+        ports:
+            - 8002:5002

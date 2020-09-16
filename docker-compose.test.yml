@@ -1,0 +1,52 @@
+version: '3'
+
+volumes:
+    pgdata: {}
+
+services:
+    web:
+        restart: always
+        build: ./web
+        volumes: ['./web/src:/app/src']
+        depends_on:
+            - api
+            - recommender
+        ports:
+            - 8081:8080
+        environment: 
+            - CHOKIDAR_USEPOLLING=true
+        env_file:
+            - .env.test
+
+    # Testing containers
+    selenium-hub:
+        image: selenium/hub
+        ports:
+            - 4444:4444
+        depends_on:
+            - web
+            
+    firefox:
+        image: selenium/node-firefox-debug
+        volumes:
+            - /dev/shm:/dev/shm
+        depends_on:
+            - selenium-hub
+        environment:
+            HUB_HOST: selenium-hub
+            NODE_MAX_SESSION: 10
+        ports:
+            - 5901:5900
+    
+    chrome:
+        image: selenium/node-chrome-debug
+        volumes:
+            - /dev/shm:/dev/shm
+        depends_on:
+            - selenium-hub
+        environment:
+            HUB_HOST: selenium-hub
+            NODE_MAX_SESSION: 10
+        ports:
+            - 5900:5901
+        privileged: true
