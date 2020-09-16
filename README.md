@@ -19,7 +19,7 @@ The repository is structured as a folder for each container, each corresponding 
 
 ## Installation
 ```sh
-$ git clone https://gitlab.com/Villons96/pocketnews
+$ git clone https://github.com/l-gandolfi/pocketnews
 $ cd pocketnews
 ```
 
